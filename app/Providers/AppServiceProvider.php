@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Routing\UrlGenerator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +28,12 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
+<<<<<<< HEAD
     
+=======
+    public function boot()
+    {
+        //
+    }
+>>>>>>> parent of 85ec769 (Subida a render)
 }

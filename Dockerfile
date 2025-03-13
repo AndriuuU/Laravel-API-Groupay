@@ -1,20 +1,34 @@
-FROM richarvey/nginx-php-fpm:latest
+# Usar la imagen oficial de PHP con extensiones necesarias
+FROM php:8.2-fpm
 
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    unzip \
+    git \
+    curl \
+    && docker-php-ext-install pdo pdo_mysql gd
+
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Establecer el directorio de trabajo
+WORKDIR /var/www/html
+
+# Copiar archivos del proyecto
 COPY . .
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Instalar dependencias de Laravel
+RUN composer install
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Permisos de escritura para almacenamiento y caché
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Exponer puerto
+EXPOSE 9000
 
-CMD ["/start.sh"]
+# Comando por defecto al iniciar el contenedor
+CMD ["php-fpm"]
