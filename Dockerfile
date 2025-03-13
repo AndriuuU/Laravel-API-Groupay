@@ -17,4 +17,9 @@ ENV LOG_CHANNEL stderr
 # Allow composer to run as root
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-CMD ["/start.sh"]
+# Asegúrate de exponer el puerto 9000
+EXPOSE 9000
+
+# Comando por defecto al iniciar el contenedor
+CMD ["php-fpm"]
+
