@@ -11,6 +11,5 @@ php artisan config:clear
 php artisan view:clear
 php artisan config:cache
 
-echo "Running migrations..."
-php artisan migrate --force
+
 
