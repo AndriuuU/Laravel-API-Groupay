@@ -1,25 +1,20 @@
 FROM richarvey/nginx-php-fpm:latest
 
-COPY . .
+# Instalar extensiones necesarias para PostgreSQL
+RUN apk update && apk add --no-cache \
+    libpq-dev \
+    && docker-php-ext-install pdo_pgsql
 
-# Image config
-ENV SKIP_COMPOSER 1
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
+# Copiar el proyecto
+COPY . /var/www/html
 
-# Laravel config
-ENV APP_ENV production
-ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+# Instalar dependencias
+RUN composer install --no-dev --optimize-autoloader
 
-# Allow composer to run as root
-ENV COMPOSER_ALLOW_SUPERUSER 1
+# Permisos necesarios
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Asegúrate de exponer el puerto 9000
-EXPOSE 9000
+# Puerto dinámico de Render
+EXPOSE 80
 
-# Comando por defecto al iniciar el contenedor
-CMD ["php-fpm"]
-
+CMD ["/start.sh"]
