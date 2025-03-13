@@ -1,16 +1,11 @@
-echo "Running composer"
-composer install --no-dev --working-dir=/var/www/html
+#!/usr/bin/env bash
 
-echo "Caching config..."
+echo "Instalando dependencias Composer..."
+composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
+
+echo "Limpiando cachés..."
 php artisan config:cache
-
-echo "Caching routes..."
 php artisan route:cache
-php artisan cache:clear
-php artisan config:clear
-php artisan view:clear
-php artisan config:cache
 
-echo "Running migrations..."
+echo "Ejecutando migraciones..."
 php artisan migrate --force
-
