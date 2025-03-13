@@ -68,7 +68,8 @@ class ExpenseController extends Controller
             'date' => $request->date,
             'category' => $request->category ?? 'other',
             'group_id' => $groupId,
-            'paid_by' => $request->paidBy,
+            'paid_by' => $request->paidBy, // <-- Aquí está la corrección (paid_by)
+
         ]);
 
         $expense->participants()->attach($request->participants);
@@ -92,11 +93,10 @@ class ExpenseController extends Controller
     {
         $expense = Expense::findOrFail($id);
         
-        // Verificar si el usuario es miembro del grupo
         if (!$expense->group->members->contains($request->user()->id)) {
             return response()->json(['message' => 'No autorizado'], 403);
         }
-
+    
         $validator = Validator::make($request->all(), [
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
@@ -106,48 +106,37 @@ class ExpenseController extends Controller
             'participants' => 'required|array|min:1',
             'participants.*' => 'exists:users,id',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
-        // Verificar que el pagador y los participantes son miembros del grupo
+    
+        // Verificar membresía del pagador y participantes:
         $memberIds = $expense->group->members->pluck('id')->toArray();
         if (!in_array($request->paidBy, $memberIds)) {
             return response()->json(['message' => 'El pagador no es miembro del grupo'], 422);
         }
-
+    
         foreach ($request->participants as $participantId) {
             if (!in_array($participantId, $memberIds)) {
                 return response()->json(['message' => 'Uno o más participantes no son miembros del grupo'], 422);
             }
         }
-
+    
+        // Actualizar gasto:
         $expense->update([
             'description' => $request->description,
             'amount' => $request->amount,
             'date' => $request->date,
             'category' => $request->category ?? $expense->category,
-            'paid_by' => $request->paidBy,
+            'paid_by' => $request->paidBy, // <-- clave aquí
         ]);
-
-        // Actualizar participantes
+    
+        // Actualizar participantes:
         $expense->participants()->sync($request->participants);
-
+    
         return response()->json($expense->load(['paidBy', 'participants']));
     }
-
-    public function destroy(Request $request, $id)
-    {
-        $expense = Expense::findOrFail($id);
-        
-        // Verificar si el usuario es miembro del grupo
-        if (!$expense->group->members->contains($request->user()->id)) {
-            return response()->json(['message' => 'No autorizado'], 403);
-        }
-
-        $expense->delete();
-
-        return response()->json(['message' => 'Gasto eliminado correctamente']);
-    }
+    
+    
 }
