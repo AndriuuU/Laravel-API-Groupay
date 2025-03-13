@@ -7,7 +7,7 @@ RUN apk update && apk add --no-cache postgresql-dev \
 # Copiar todo el proyecto
 COPY . /var/www/html
 
-# Dar permisos de ejecución al script de despliegue
+# Copiar scripts de despliegue y darles permisos de ejecución
 RUN chmod +x /var/www/html/scripts/00-laravel-deploy.sh
 
 # Instalar dependencias de Laravel
