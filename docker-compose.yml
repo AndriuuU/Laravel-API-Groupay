@@ -13,8 +13,6 @@ services:
       - .:/var/www/html
     networks:
       - laravel_network
-    depends_on:
-      - db
 
   # Servidor Nginx
   webserver:
@@ -31,23 +29,5 @@ services:
     depends_on:
       - app
 
-  # Base de datos MariaDB
-  db:
-    image: mariadb:10.6
-    container_name: mariadb
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: laraveluser
-      MYSQL_PASSWORD: secret
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    networks:
-      - laravel_network
-
 networks:
   laravel_network:
-
-volumes:
-  mariadb_data:
